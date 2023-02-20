@@ -1,6 +1,6 @@
 #include "header.h"
 typedef struct AEScontainer {
-    char * output; 
+    unsigned char * output; 
     long long fileSize;
     int currentBlock; //Block program is currently modifying.
     int blockRange; //How many blocks exist totally.
@@ -47,17 +47,22 @@ Container * byteSubstitution(Container * matrix)
     }
 }
 
+//XORs the current plaintext block with the key.
 void xor(Container * matrix, Key * key)
 {
-
+    for(int i=0; i<16; i++)
+    {
+        matrix->output[matrix->currentBlock*16 + i] ^= key[i];
+    }
 }
 
+//Shifts rows
 void shiftRows(Container * matrix)
 {
-    char copiedMatrix[] = [16];
+    unsigned char copiedMatrix[] = [16];
     for(int c=0; c<15; c++)
     {
-        copiedMatrix[c] = matrix->output[matrix->currentBlock*16+c]
+        copiedMatrix[c] = matrix->output[matrix->currentBlock*16+c] //debug might need +1?
     }
 
     for(int i = 0; i<4; i++)
@@ -68,9 +73,14 @@ void shiftRows(Container * matrix)
     }
 }
 
+//TODO: Learn Galois field theory in less than 4 weeks.
 void mixColumns(Container * matrix)
 {
-
+    unsigned char standardMatrix = {2,1,1,3, 3,2,1,1, 1,3,2,1, 1,1,3,2};
+    for(int i=0; i < 3; i++)
+    {
+    matrix->output[(matrix->currentBlock*16) + i]
+    }
 }
 
 int main()

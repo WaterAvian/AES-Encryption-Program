@@ -47,7 +47,7 @@ Container * byteSubstitution(Container * matrix)
     }
 }
 
-//XORs the current plaintext block with the key.
+/*XORs the current plaintext block with the key.*/
 void xor(Container * matrix, Key * key)
 {
     for(int i=0; i<16; i++)
@@ -56,7 +56,7 @@ void xor(Container * matrix, Key * key)
     }
 }
 
-//Shifts rows
+/*Shifts rows according to AES standard.*/
 void shiftRows(Container * matrix)
 {
     unsigned char copiedMatrix[] = [16];
@@ -77,9 +77,19 @@ void shiftRows(Container * matrix)
 void mixColumns(Container * matrix)
 {
     unsigned char standardMatrix = {2,1,1,3, 3,2,1,1, 1,3,2,1, 1,1,3,2};
-    for(int i=0; i < 3; i++)
-    {
-    matrix->output[(matrix->currentBlock*16) + i]
+    
+}
+
+int multiplyExor(int matrix, int standard)
+{
+    unsigned char total = 0; // m0, m1, m2, m3, m4, m5, m6, m7 = matrix;
+    unsigned char mask = 1; // mask2 = 2, mask4 = 4, mask8 = 8, mask16 = 16, mask32 = 32, mask64, mask128; //bit shift in for loop
+    unsigned char intermediary;
+    for(int i=0; i<8; i++)
+    {   
+        intermediary = matrix * (mask & standard);
+        mask = mask << 1; //bits shifted IN, if unclean not 0's then errors?
+        total = total ^ matrix;
     }
 }
 
@@ -96,13 +106,3 @@ int main()
 
 
 }
-
-/*
-        printf("%c",matrix->output[0]);
-        char temp = matrix->output[matrix->currentBlock+(4*i)];
-        matrix->output[matrix->currentBlock+(4*i)] = matrix->output[matrix->currentBlock+(4*i) + (-i % 4)];
-
-        matrix->output[matrix->currentBlock+(4*i) + 1] = matrix->output[matrix->currentBlock+(4*i) -1 + ((-i) % 4)];
-        matrix->output[matrix->currentBlock+(4*i) + 2] = matrix->output[matrix->currentBlock+(4*i) -2 + ((-i) % 4)];
-        matrix->output[matrix->currentBlock+(4*i) + 3] = matrix->output[matrix->currentBlock+(4*i) -3 + ((-i) % 4)];
-*/

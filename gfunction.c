@@ -1,5 +1,6 @@
 #include "header.h"
 
+//Substitutes w0 of key with sbox values.
 char * subWord(char * subWord)
 {
     subWord[0] = sbox[subWord[0]];
@@ -9,25 +10,26 @@ char * subWord(char * subWord)
     return;
 }
 
-char * gfunction(struct Key *key){ //creates g functions from key
+char * gfunction(struct Key *key){
     static int round = 0;
     short roundConst[] = {1,2,4,8,16,32,64,128,27,54}; 
     char * gArray = (char*)malloc(sizeof(char)*4); 
-
-    for(int i = 0, j = 12; i < 4; i++, j++) //creates array of last 4 bytes of key.
+    
+    //creates array of last 4 bytes of key.
+    for(int i = 0, j = 12; i < 4; i++, j++)
     {
-        gArray[i] = key->bytes[j]; //w3 (j1 j2 etc = 1 byte/8)
+        gArray[i] = key->bytes[j]; //w3
     }
 
-    char temp = (char)gArray[0]; //shifts by 1, circular left shift
+    //circular left shift by 1
+    char temp = (char)gArray[0];
     gArray[0] = gArray[3];
-    gArray[3] = temp; //rotword completed here
+    gArray[3] = temp; //rotword complete 
 
-    //Sbox function:
     subWord(gArray);
 
     //XOR's gArray with roundConstant
-    gArray[0] = gArray[0] ^ (char)roundConst[round];  //??? Why *gArray[i] and not gArray[i] doesn't [] already dereference?
+    gArray[0] = gArray[0] ^ (char)roundConst[round];
     
     return gArray;
 }

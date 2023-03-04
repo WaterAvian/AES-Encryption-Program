@@ -43,7 +43,7 @@ Container * byteSubstitution(Container * matrix)
     for(int i=0;i<15;i++)
     {
         //128/8 = 16, 16*currentBlock to reach the working Block.
-        matrix->output[16*matrix->currentBlock + i] = sbox[matrix->output[16*matrix->currentBlock + i]]; //swaps value with sbox value.
+        matrix->outpasut[16*matrix->currentBlock + i] = sbox[matrix->output[16*matrix->currentBlock + i]]; //swaps value with sbox value.
     }
 }
 
@@ -73,25 +73,39 @@ void shiftRows(Container * matrix)
     }
 }
 
+int multiplyExor(char matrix, char standard)
+{
+    unsigned int total = 0; 
+    unsigned int mask = 1; 
+    unsigned int intermediary;
+    for(int i=0; i<8; i++)
+    {
+        intermediary = matrix * (mask & standard);
+        total ^= intermediary;
+        mask = mask << 1; //bits shifted IN, if unclean not 0's then errors?
+    }
+    return total;
+}
+
 //TODO: Learn Galois field theory in less than 4 weeks.
 void mixColumns(Container * matrix)
 {
     unsigned char standardMatrix = {2,1,1,3, 3,2,1,1, 1,3,2,1, 1,1,3,2};
-    
-}
-
-int multiplyExor(int matrix, int standard)
-{
-    unsigned char total = 0; // m0, m1, m2, m3, m4, m5, m6, m7 = matrix;
-    unsigned char mask = 1; // mask2 = 2, mask4 = 4, mask8 = 8, mask16 = 16, mask32 = 32, mask64, mask128; //bit shift in for loop
-    unsigned char intermediary;
-    for(int i=0; i<8; i++)
-    {   
-        intermediary = matrix * (mask & standard);
-        mask = mask << 1; //bits shifted IN, if unclean not 0's then errors?
-        total = total ^ matrix;
+    unsigned char copiedMatrix[4];
+    for(int r=0; r<4; r++)
+    {
+        copiedMatrix[0] = matrix->output[matrix->currentBlock*16+(r*4)]; 
+        copiedMatrix[1] = matrix->output[matrix->currentBlock*16+1+(r*4)];
+        copiedMatrix[2] = matrix->output[matrix->currentBlock*16+2+(r*4)];
+        copiedMatrix[3] = matrix->output[matrix->currentBlock*16+3+(r*4)];
+        for(int i=0, i<4;i++)
+        {
+            matrix->output[matrix->currentBlock*16+i+(4*r))] = multiplyExor(copiedMatrix[i], standardMatrix[r+(4*i)])
+        }
     }
 }
+
+
 
 int main()
 {
@@ -103,6 +117,4 @@ int main()
     //AES->
     printf("%c",AES->output[0]);
     shiftRows(AES);
-
-
 }

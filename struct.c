@@ -73,7 +73,7 @@ void shiftRows(Container * matrix)
     }
 }
 
-int multiplyExor(char matrix, char standard)
+unsigned char multiplyExor(char matrix, char standard)
 {
     unsigned int total = 0; 
     unsigned int mask = 1; 
@@ -84,23 +84,29 @@ int multiplyExor(char matrix, char standard)
         total ^= intermediary;
         mask = mask << 1; //bits shifted IN, if unclean not 0's then errors?
     }
-    return total;
+    if(total > 255)
+    {
+        total = total % 283; //283 == X^8 + X^4 + X^3 + X + 1
+    }
+    return (unsigned char)total;
 }
 
 //TODO: Learn Galois field theory in less than 4 weeks.
 void mixColumns(Container * matrix)
 {
     unsigned char standardMatrix = {2,1,1,3, 3,2,1,1, 1,3,2,1, 1,1,3,2};
-    unsigned char copiedMatrix[4];
-    for(int r=0; r<4; r++)
-    {
-        copiedMatrix[0] = matrix->output[matrix->currentBlock*16+(r*4)]; 
-        copiedMatrix[1] = matrix->output[matrix->currentBlock*16+1+(r*4)];
-        copiedMatrix[2] = matrix->output[matrix->currentBlock*16+2+(r*4)];
-        copiedMatrix[3] = matrix->output[matrix->currentBlock*16+3+(r*4)];
-        for(int i=0, i<4;i++)
-        {
-            matrix->output[matrix->currentBlock*16+i+(4*r))] = multiplyExor(copiedMatrix[i], standardMatrix[r+(4*i)])
+    unsigned char matrixR1;
+    unsigned char matrixR2;
+    unsigned char matrixR3;
+    unsigned char matrixR4;
+    for(int c=0; c<4; c++){
+        for(int r=0; r<4; r++){
+            matrixR1 = multiplyExor(matrix->output[matrix->currentBlock*16+(c*4)], standardMatrix[r]);
+            matrixR2 = multiplyExor(matrix->output[matrix->currentBlock*16+1+(c*4)], standardMatrix[r+(4*1)]);
+            matrixR3 = multiplyExor(matrix->output[matrix->currentBlock*16+2+(c*4)], standardMatrix[r+(4*2)]);
+            matrixR4 = multiplyExor(matrix->output[matrix->currentBlock*16+3+(c*4)], standardMatrix[r+(4*3)]);
+
+            matrix->output[matrix->currentBlock*16+r+(4*c)] = matrixR1 ^ matrixR2 ^ matrixR3 ^ matrixR4; 
         }
     }
 }
